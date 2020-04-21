@@ -27,10 +27,9 @@ def remote_data(market, interval='15min', limit=120):
     response = requests.get(url, headers=headers)
     data = json.loads(response._content)
     data = data.get("data", {})
+    data.reverse()
     dates = [time_human(int(r[0])) for r in data]
     closep = [float(r[3]) for r in data]
-    closep.reverse()
-    dates.reverse()
     return (dates, closep)
 
 

@@ -1,5 +1,6 @@
 import json
 import websocket
+
 try:
     import thread
 except ImportError:
@@ -7,9 +8,37 @@ except ImportError:
 import time
 
 
+bid = None
+ask = None
+
+def refresh_spread(new_bid, new_ask):
+
+    global bid
+    global ask
+
+    bid = new_bid
+    ask = new_ask
+
+    spread = ask - bid
+    middle = (bid + ask) / 2
+    percent =  ((middle - bid ) * 100) / middle
+    print("Spread: %.8f Percent: %.2f%% Middle: %.8f" % (spread, percent, middle) )
+    
+
+def read_orderbook(content):
+    data = content['data']
+    new_bid = float(data.get('bids')[0][0])
+    new_ask = float(data.get('asks')[0][0])
+
+
+    if all([bid == new_bid, ask == new_ask]):
+        return
+
+    refresh_spread(new_bid, new_ask)
+
 def on_message(ws, message):
 
-    # ~ print(message)
+    #print(message)
 
     if message == "ping":
         ws.send("pong")
@@ -19,12 +48,8 @@ def on_message(ws, message):
     if not data.get("data"):
         return
 
-    bid = float(data["data"][9])
-    ask = float(data["data"][10])
-    spread = ask - bid
-    middle = (bid + ask) / 2
-    percent =  ((middle - bid ) * 100) / middle
-    print("Spread: %.2f Percent: %.2f%% Middle: %.2f" % (spread, percent, middle) )
+    if data.get("topic")["topic"] == "orderbook":
+        read_orderbook(data)
 
 
 def on_error(ws, error):
@@ -45,7 +70,15 @@ def on_open(ws):
                 {
                     "topic": "ticker",
                     "market": "ETH-USDT",
-                }
+                },
+                {
+                  "topic": "orderbook",
+                  #"market": "ETH-USDT",
+                  "market": "LRC-ETH",
+                  "level": 0,
+                  "count": 1,
+                  "snapshot": True,
+                },
             ]
         })
         ws.send(suscription)
@@ -54,9 +87,10 @@ def on_open(ws):
 
 
 if __name__ == "__main__":
+    #websocket.enableTrace(True)
     ws = websocket.WebSocketApp("wss://ws.loopring.io/v2/ws",
                               on_message=on_message,
                               on_error=on_error,
+                              on_open=on_open,
                               on_close=on_close)
-    ws.on_open = on_open
     ws.run_forever()

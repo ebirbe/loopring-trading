@@ -9,24 +9,25 @@ df = pd.read_csv(
     header=None,
     names=[
         'time',
-        'vol',
-        'open',
-        'close',
-        'low',
-        'high',
-        'sma',
-        'action'])
+        'hodl',
+        'strategy'
+    ])
 
 fig = go.Figure(data=[
     go.Scatter(
+        name="% Return Hodl",
         x=df['time'],
-        y=df['sma']),
-    go.Candlestick(
+        y=df['hodl']),
+    go.Scatter(
+        name="% Return Strategy",
         x=df['time'],
-        open=df['open'],
-        high=df['high'],
-        low=df['low'],
-        close=df['close']),
+        y=df['strategy']),
+    #go.Candlestick(
+    #    x=df['time'],
+    #    open=df['open'],
+    #    high=df['high'],
+    #    low=df['low'],
+    #    close=df['close']),
 ])
 
 fig.show()

@@ -208,7 +208,7 @@ if __name__ == "__main__":
     end = datetime.now()
     window_rsi = 14
     sma_fast_size = 2
-    sma_slow_size = 10
+    sma_slow_size =10
 
     amount_base = 1351.936
     amount_quote = 0.1037
@@ -237,7 +237,7 @@ if __name__ == "__main__":
 
     result = []
     rebalance_tolerance = 0.06
-    test_estimated_spread = 0.01
+    test_estimated_spread = 0.02
     for i in range(len(data)):
 
         sma_fast_current = i > sma_fast_size and sma_fast[i - sma_fast_size] or data[i][2]
